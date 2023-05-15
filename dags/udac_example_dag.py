@@ -1,5 +1,4 @@
 from datetime import datetime, timedelta
-import os
 from airflow import DAG
 from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators import (StageToRedshiftOperator, LoadFactOperator,
@@ -32,7 +31,7 @@ stage_events_to_redshift = StageToRedshiftOperator(
     aws_credentials_id = "aws_credentials",
     table = "staging_events",
     s3_path = "s3://udacity-dend/log_data",
-    json_path = ""
+    format = "JSON s3://udacity-dend/log_json_path.json'"
 )
 
 stage_songs_to_redshift = StageToRedshiftOperator(
@@ -42,7 +41,7 @@ stage_songs_to_redshift = StageToRedshiftOperator(
     aws_credentials_id = "aws_credentials",
     table = "staging_songs",
     s3_path = "s3://udacity-dend/song_data",
-    json_path = ""
+    json_path = "JSON 'auto"
 )
 
 load_songplays_table = LoadFactOperator(
@@ -51,6 +50,7 @@ load_songplays_table = LoadFactOperator(
     redshift_conn_id="redshift",
     table = "songplays",
     sql_source=SqlQueries.songplay_table_insert,
+    append_mode = True
 )
 
 load_user_dimension_table = LoadDimensionOperator(
@@ -59,6 +59,7 @@ load_user_dimension_table = LoadDimensionOperator(
     redshift_conn_id="redshift",
     table="users",
     sql_source=SqlQueries.user_table_insert,
+    append_mode = True
 )
 
 load_song_dimension_table = LoadDimensionOperator(
@@ -66,7 +67,8 @@ load_song_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id="redshift",
     table="songs",
-    sql_source=SqlQueries.song_table_insert
+    sql_source=SqlQueries.song_table_insert,
+    append_mode = True
 )
 
 load_artist_dimension_table = LoadDimensionOperator(
@@ -74,7 +76,8 @@ load_artist_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id="redshift",
     table="artists",
-    sql_source=SqlQueries.artist_table_insert
+    sql_source=SqlQueries.artist_table_insert,
+append_mode = True
 )
 
 load_time_dimension_table = LoadDimensionOperator(
@@ -82,7 +85,8 @@ load_time_dimension_table = LoadDimensionOperator(
     dag=dag,
     redshift_conn_id="redshift",
     table="time",
-    sql_source=SqlQueries.time_table_insert
+    sql_source=SqlQueries.time_table_insert,
+    append_mode = True
 )
 
 run_quality_checks = DataQualityOperator(

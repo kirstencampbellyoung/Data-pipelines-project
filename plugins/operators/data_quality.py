@@ -4,7 +4,10 @@ from airflow.utils.decorators import apply_defaults
 
 class DataQualityOperator(BaseOperator):
     """"
-
+    Performs data quality check on all tables
+    Input:
+        redshift_conn_id
+        tables: list of tables to run checks
     """
 
     ui_color = '#89DA59'

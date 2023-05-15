@@ -7,16 +7,11 @@ class StageToRedshiftOperator(BaseOperator):
     """
     Loads any JSON formatted files from S3 to Amazon Redshift
     input:
-        redshift_conn_id:
-        aws_credentials_id:
+        redshift_conn_id
+        aws_credentials_id
         table: the target table
         s3_path: where the file is loaded
-        json_path:
-    output:
-
-    The stage operator is expected to be able to load any JSON formatted files from S3 to Amazon Redshift. The operator creates and runs a SQL COPY statement based on the parameters provided. The operator's parameters should specify where in S3 the file is loaded and what is the target table.
-    The parameters should be used to distinguish between JSON file. Another important requirement of the stage operator is containing a templated field that allows it to load timestamped files from S3 based on the execution time and run backfills.
-
+        format: to distinguish a JSON file
     """
     ui_color = '#358140'
 
@@ -25,7 +20,7 @@ class StageToRedshiftOperator(BaseOperator):
             FROM '{}'
             ACCESS_KEY_ID '{}'
             SECRET_ACCESS_KEY '{}'
-            {}
+            FORMAT AS {}
             ;
         """
 
@@ -38,7 +33,7 @@ class StageToRedshiftOperator(BaseOperator):
                  aws_credentials_id = "",
                  table = "",
                  s3_path = "",
-                 json_path = "",
+                 format = "",
                  *args, **kwargs):
 
         super(StageToRedshiftOperator, self).__init__(*args, **kwargs)
@@ -49,7 +44,7 @@ class StageToRedshiftOperator(BaseOperator):
         self.aws_credentials_id = aws_credentials_id
         self.table = table
         self.s3_path = s3_path
-        self.json_path = json_path
+        self.format = format
 
     def execute(self, context):
 
@@ -63,7 +58,8 @@ class StageToRedshiftOperator(BaseOperator):
             self.table,
             self.s3_path,
             credentials.access_key,
-            credentials.secret_key
+            credentials.secret_key,
+            self.format
         )
 
         redshift.run(formatted_sql)
